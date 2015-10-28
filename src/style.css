@@ -1,0 +1,221 @@
+body,html ,	div,canvas {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	background: #ccc;
+	font-family: Arial;
+	font-size:14px;
+}
+
+
+#user-layout {
+	margin: 10px auto;
+	margin-bottom: 0;
+	border: 1px solid #ccc;
+	width: 640px;
+	height: 640px;
+	position: relative;
+}
+
+#controls-left {
+    position: absolute;
+    left: -240px;
+    height: 640px;
+    background: #fff;
+    width: 200px;
+    top: 0;
+    padding: 0 10px;
+}
+
+#controls-left .colorPick{
+	width:30px;
+	height: 30px;
+	margin-right: 10px;
+	margin-bottom: 10px;
+	border: 1px solid #ccc;
+	float: left;
+	cursor: pointer;
+
+}
+
+#controls-left .colorPick:active{
+	border-color: 'green';
+}
+
+#controls-left .option{
+	margin-top:15px;
+	padding-right: 10px;
+}
+
+#controls-left .option label{
+	clear: both;
+	display: block;
+	font-size: 16px;
+	float: left;
+	height: 40px;
+	line-height: 40px;
+
+}
+#controls-left input{
+	display: block;
+	height: 30px;
+	margin-right: 10px;
+	margin-bottom: 10px;
+	width: 50px;
+	line-height: 30px;
+	border: none;
+	float: left;
+	background: orange;
+	color:#fff;
+	cursor: pointer;
+}
+
+
+#controls-left .option input.color {
+	height: 40px;
+	width:40px;
+	font-size: 0;
+	border: 1px solid #666;
+	float: right;
+	display: block;
+	margin: 0;
+}
+
+#controls-left input:active{
+	background: yellow;
+}
+
+#controls-left div.option{
+	overflow: hidden;
+    clear: both;
+}
+
+#stepPicker {
+}
+
+#wrapper {
+	position: relative;
+	
+}
+
+canvas {
+	background:none;
+	z-index:1;
+	position: absolute;
+	top: 0px; 
+	left: 0px;
+	width:100%;
+	height: 100%;
+}
+	
+#canvas {
+	/*background: #222;*/
+}
+
+img {
+	display: none;
+}
+
+
+
+
+.checkbox {
+	float: right;
+	width:80px;
+	height: 40px;
+	position: relative;
+}
+
+.checkbox .bool-no{
+	cursor: default;
+	box-sizing:border-box;
+	height: 40px;
+	width:40px;
+	background: #8F9C8F;
+	color: #fff;
+	border-radius: 3px;
+	border:none; 
+	position: absolute;
+	line-height: 40px;
+	text-align: center;
+	font-size: 16px;
+}
+
+/* #8F9C8F */
+.checkbox .bool-yes{
+	cursor: pointer;
+	height: 30px;
+	width:40px;
+	background: #fff;
+	color: #666;
+	border-radius: 0px;
+	top:5px;
+	left: 40px;
+	position: absolute;
+	line-height: 30px;
+	text-align: center;
+	font-size: 16px;
+	box-sizing:border-box;
+	border:1px solid #666;
+	border-left: none;
+	border-top-right-radius: 3px;
+	border-bottom-right-radius: 3px;
+}
+
+
+.checkbox.selected .bool-no{
+	cursor: pointer;
+	height: 30px;
+	width:40px;
+	background: #fff;
+	color: #666;
+	border-radius: 0px;
+	top:5px;
+	left: 0px;
+	position: absolute;
+	line-height: 30px;
+	text-align: center;
+	font-size: 16px;
+
+	box-sizing:border-box;
+	border:1px solid #666;
+	border-right: none;
+	border-top-left-radius: 3px;
+	border-bottom-left-radius: 3px;
+}
+
+.checkbox.selected .bool-yes{
+	cursor: default;
+	height: 40px;
+	width:40px;
+	background: #3EBB3E;
+	color: #fff;
+	border-radius: 3px;
+	border:none; 
+	top:0;
+	left: 40px;
+	position: absolute;
+	line-height: 40px;
+	text-align: center;
+	font-size: 16px;
+}
+
+
+div.button {
+	cursor: pointer;
+	box-shadow: 2px 2px 5px #ccc;
+	width: 125px;
+	height: 40px;
+	border-radius: 3px;
+	background: #666;
+	color: #fff;
+	font-size: 16px;
+	line-height: 40px;
+	text-align: center;
+}
+
+
+
+
