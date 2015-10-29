@@ -58,14 +58,14 @@ function SymmetricDraw(width, height)
 	this.options = {
 		step: 16,
 		color: '#666',
-		lineWidth: 100,
+		lineWidth: 5,
 		bgColor:'#fff',
 		guideColor:'#ccc',
-		guideShow: false,
+		guideShow: true,
 		lineCap: 'round'
 	};
 
-	this.mode = SymmetricDraw.modeEnum.line;
+	this.mode = SymmetricDraw.modeEnum.free;
 
 	this.addListeners();
 
