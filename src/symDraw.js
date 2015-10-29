@@ -291,7 +291,6 @@ SymmetricDraw.prototype = {
 
 	recordAction:function()
 	{
-		return;
 		if (this.layerToClear && this.layerToClear.length)
 		{
 			for(var i=0;i<this.layerToClear.length;i++)
@@ -316,7 +315,6 @@ SymmetricDraw.prototype = {
 
 	saveAction:function()
 	{
-		return;
 		this.actionLayer++;
 		if (this.actionLayer > 4)
 		{
@@ -327,7 +325,7 @@ SymmetricDraw.prototype = {
 	},
 
 	undo: function(){
-		return;
+		
 		var prevLayer = this.actionLayer - 1;
 		if(prevLayer < 0) prevLayer = 4;
 		this.actions[prevLayer].hide();
@@ -337,7 +335,7 @@ SymmetricDraw.prototype = {
 	},
 
 	redo: function(){
-		return;
+		
 		this.actions[this.actionLayer].show();
 		var newArr = [] 
 		for(var i=0;i<this.layerToClear.length;i++)
@@ -360,8 +358,8 @@ SymmetricDraw.prototype = {
 
 	getLayout: function()
 	{
-		return this.layout;
-		//return this.actions[this.actionLayer];
+		//return this.layout;
+		return this.actions[this.actionLayer];
 	},
 
 	paint: function()
