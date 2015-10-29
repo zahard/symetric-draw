@@ -56,7 +56,7 @@ function SymmetricDraw(width, height)
 	}
 
 	this.options = {
-		step: 16,
+		step: 1,
 		color: '#666',
 		lineWidth: 5,
 		bgColor:'#fff',
@@ -65,7 +65,7 @@ function SymmetricDraw(width, height)
 		lineCap: 'round'
 	};
 
-	this.mode = SymmetricDraw.modeEnum.free;
+	this.mode = SymmetricDraw.modeEnum.curve;
 
 	this.addListeners();
 
@@ -636,6 +636,57 @@ SymmetricDraw.prototype = {
 
 			ctx.restore();
 		}
+	},
+
+	drawDrop: function(ctx,p1,p2,p3)
+	{
+		var r =20;
+
+		ctx.beginPath();
+
+		var d1 = { x:p1.x - r, y:p1.y,}
+		var d2 = { x:p1.x + r, y:p1.y,}
+
+		ctx.moveTo(d2.x, d2.y);
+		ctx.quadraticCurveTo(p3.x, p3.y, p2.x, p2.y);
+		ctx.quadraticCurveTo(p3.x, p3.y, d1.x, d1.y);
+
+		var dx = Math.ceil((p1.x - p3.x)/5);
+		var dy = Math.ceil((p1.y - p3.y)/5);
+		ctx.bezierCurveTo(d1.x+ dx, d1.y+dy, d2.x+dx, d2.y+dy, d2.x, d2.y);
+
+		ctx.closePath();
+		ctx.stroke();
+
+		//new Circle(ctx, opposite.x-30, opposite.y+10, 5, 'orange', null, 1).draw();
+		
+		var step = this.step;
+		for(var rad=step;rad < 360; rad += step)
+		{
+			ctx.save();
+			ctx.translate(this.center.x, this.center.y);
+			ctx.rotate(this.inRad(rad));
+			ctx.translate(-this.center.x, -this.center.y);
+			
+			ctx.beginPath();
+		
+			var d1 = { x:p1.x - r, y:p1.y,}
+			var d2 = { x:p1.x + r, y:p1.y,}
+
+			ctx.moveTo(d2.x, d2.y);
+			ctx.quadraticCurveTo(p3.x, p3.y, p2.x, p2.y);
+			ctx.quadraticCurveTo(p3.x, p3.y, d1.x, d1.y);
+
+			var dx = Math.ceil((p1.x - p3.x)/5);
+			var dy = Math.ceil((p1.y - p3.y)/5);
+			ctx.bezierCurveTo(d1.x+ dx, d1.y+dy, d2.x+dx, d2.y+dy, d2.x, d2.y);
+
+			ctx.closePath();
+			ctx.stroke();
+
+			ctx.restore();
+		}
+
 	},
 
 	addListeners: function()

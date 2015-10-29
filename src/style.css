@@ -19,6 +19,20 @@ body {
 	position: relative;
 }
 
+#controls-right {
+	
+	position: absolute;
+    right: -240px;
+    height: 400px;
+    background: #FFFBD2;
+    width: 200px;
+    top: 0;
+    padding: 0 10px;
+    border-radius: 3px;
+    font-size: 14px;
+    color: #666;
+}
+
 #controls-left {
     position: absolute;
     left: -240px;
