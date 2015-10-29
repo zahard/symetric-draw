@@ -5,6 +5,8 @@ var resources = [
 	'Vertaxis/Math',
 	'Vertaxis/Shape',
 	'Layer',
+	'Circle',
+	'KeyboardManager',
 	'Registry',
 	'symDraw'
 ];
