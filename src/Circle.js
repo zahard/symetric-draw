@@ -4,7 +4,7 @@ function Circle(cxt,x,y,r, strokeColor, fillColor ){
 	this.y = y;
 	this.radius = r;
 	this.strokeColor = strokeColor || null;	
-	this.fillColor = fillColor || null;	
+	this.fillColor = fillColor || null;
 
 	return this;
 }

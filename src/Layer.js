@@ -30,10 +30,12 @@ Layer.prototype.empty = function() {
 
 Layer.prototype.hide = function() {
 	this.cnv.style.display = 'none';
+	return this;
 }
 
 Layer.prototype.show = function() {
 	this.cnv.style.display = 'block';
+	return this;
 }
 
 

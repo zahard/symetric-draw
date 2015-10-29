@@ -58,6 +58,13 @@ body {
 	line-height: 40px;
 
 }
+
+
+#controls-left .option label.full{
+	float: none;
+	width: 100%;
+}
+
 #controls-left input{
 	display: block;
 	height: 30px;
@@ -218,4 +225,38 @@ div.button {
 
 
 
+.option .buttongroup {
+	float: left;
+	height: 30px;
+	font-size: 16px;
+	color:#666;
+	line-height: 30px;
+	cursor: pointer;
+	border:1px solid #aaa;
+	border-right: none;
+	width: 62px;
+    text-align: center;
+    box-sizing: border-box;
+}
 
+.option .buttongroup.active ,
+.option .buttongroup.active:hover {
+	background: #3EBB3E;
+    color: #fff;
+    text-shadow: 1px 1px 5px #666;
+}
+
+.option .buttongroup:hover {
+	background: #ddd;
+}
+
+.option .buttongroup.first {
+	border-top-left-radius: 3px;
+	border-bottom-left-radius: 3px;
+}
+
+.option .buttongroup.last {
+	border-right: 1px solid #aaa;	
+	border-top-right-radius: 3px;
+	border-bottom-right-radius: 3px;
+}

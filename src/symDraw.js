@@ -27,6 +27,7 @@ function SymmetricDraw(width, height)
 	this.offsetLeft = this.editor.offsetLeft;
 
 	this.layerToClear = [];
+	this.curvePoints = [];
 
 	this.layers = {
 		background:    new Layer( $('background'), width, height, 1),
@@ -53,17 +54,16 @@ function SymmetricDraw(width, height)
 		 y:Math.ceil(height/2)
 	}
 
-	this.layout.set('lineCap', 'round');
 	this.options = {
 		step:30,
-		color: '#fff',
+		color: '#666',
 		lineWidth: 3,
-		bgColor:'#777',
-		guideColor:'#fff',
+		bgColor:'#fff',
+		guideColor:'#ccc',
 		guideShow: true
 	};
 
-	
+	this.mode = SymmetricDraw.modeEnum.curve;
 
 	this.addListeners();
 
@@ -73,6 +73,12 @@ function SymmetricDraw(width, height)
 
 	this.drawGuides();
 
+}
+
+SymmetricDraw.modeEnum = {
+	free:1,
+	line:2,
+	curve:3
 }
 
 SymmetricDraw.prototype = {
@@ -105,7 +111,70 @@ SymmetricDraw.prototype = {
 		div.appendChild(c);
 	},
 
-	buildClear: function (argument)
+	buildModeSwitch: function()
+	{
+		var self = this;
+		var div = document.createElement('div');
+		div.className = 'option';
+		this.controlBarLeft.appendChild(div);
+
+		var l = document.createElement('label');
+		l.className = 'full';
+		l.innerHTML = 'Draw mode';
+		div.appendChild(l);
+
+		var free = document.createElement('div');
+		free.className = 'buttongroup first'
+		if(self.mode == SymmetricDraw.modeEnum.free) free.className+= ' active';
+		free.innerHTML = 'Free';
+		div.appendChild(free);
+		free.onclick = function(){
+			self.mode = SymmetricDraw.modeEnum.free;
+			self.addClass(free, 'active');
+			self.removeClass(line, 'active');
+			self.removeClass(curve, 'active');
+		}
+
+
+
+		var line = document.createElement('div');
+		line.className = 'buttongroup'
+		if(self.mode == SymmetricDraw.modeEnum.line) line.className+= ' active';
+		line.innerHTML = 'Line';
+		div.appendChild(line);
+		line.onclick = function(){
+			self.mode = SymmetricDraw.modeEnum.line;
+			self.addClass(line, 'active');
+			self.removeClass(free, 'active');
+			self.removeClass(curve, 'active');
+		}
+
+		var curve = document.createElement('div');
+		curve.className = 'buttongroup last'
+		if(self.mode == SymmetricDraw.modeEnum.curve) curve.className+= ' active';
+		curve.innerHTML = 'Curve';
+		div.appendChild(curve);
+		curve.onclick = function(){
+			self.mode = SymmetricDraw.modeEnum.curve;
+			self.addClass(curve, 'active');
+			self.removeClass(line, 'active');
+			self.removeClass(free, 'active');
+
+		}
+	},
+
+	removeClass: function(e, className)
+	{
+	    e.className = e.className.replace(className,"");
+	    e.className = e.className.replace(/\s\s+/g, ' ');
+	},
+	addClass: function(e, className)
+	{
+	    this.removeClass(e,className);
+	    e.className = e.className + ' ' + className; 
+	},
+
+	buildClear: function ()
 	{
 		var self = this;
 
@@ -206,6 +275,7 @@ SymmetricDraw.prototype = {
 		this.controlBarLeft.appendChild(b);
 		b.value = this.options.lineWidth;
 
+		this.buildModeSwitch();
 
 		this.buildColorPicker('Color', 'color');
 		this.buildColorPicker('Background', 'bgColor');
@@ -223,16 +293,25 @@ SymmetricDraw.prototype = {
 
 	applyOptions: function(changed)
 	{
-		this.layout.set('lineWidth', this.options.lineWidth);
-		this.layout.set('strokeStyle', this.options.color);
+		this.layout.setProperties({
+			lineWidth: this.options.lineWidth,
+			strokeStyle: this.options.color,
+			lineCap: 'round'
+		});
 
-		
-		this.layers.temp.set('lineWidth', this.options.lineWidth);
-		this.layers.temp.set('strokeStyle', this.options.color);
+		this.layers.temp.setProperties({
+			lineWidth: this.options.lineWidth,
+			strokeStyle: this.options.color,
+			lineCap: 'round'
+		});
 
 		for(var i=0;i<5;i++){
-			this.actions[i].set('lineWidth', this.options.lineWidth);
-			this.actions[i].set('strokeStyle', this.options.color);
+
+			this.actions[i].setProperties({
+				lineWidth: this.options.lineWidth,
+				strokeStyle: this.options.color,
+				lineCap: 'round'
+			});
 		}
 
 
@@ -291,6 +370,7 @@ SymmetricDraw.prototype = {
 
 	recordAction:function()
 	{
+		return;
 		if (this.layerToClear && this.layerToClear.length)
 		{
 			for(var i=0;i<this.layerToClear.length;i++)
@@ -315,6 +395,7 @@ SymmetricDraw.prototype = {
 
 	saveAction:function()
 	{
+		return;
 		this.actionLayer++;
 		if (this.actionLayer > 4)
 		{
@@ -325,7 +406,7 @@ SymmetricDraw.prototype = {
 	},
 
 	undo: function(){
-		
+		return;
 		var prevLayer = this.actionLayer - 1;
 		if(prevLayer < 0) prevLayer = 4;
 		this.actions[prevLayer].hide();
@@ -335,7 +416,7 @@ SymmetricDraw.prototype = {
 	},
 
 	redo: function(){
-		
+		return;
 		this.actions[this.actionLayer].show();
 		var newArr = [] 
 		for(var i=0;i<this.layerToClear.length;i++)
@@ -358,8 +439,8 @@ SymmetricDraw.prototype = {
 
 	getLayout: function()
 	{
-		//return this.layout;
-		return this.actions[this.actionLayer];
+		return this.layout;
+		//return this.actions[this.actionLayer];
 	},
 
 	paint: function()
@@ -403,10 +484,46 @@ SymmetricDraw.prototype = {
 			ctx.restore();
 		}
 	},
+	clearCurrentAction: function()
+	{
+		if (this.mode == SymmetricDraw.modeEnum.curve)
+		{
+			this.layers.temp.empty();
+			this.curvePoints = [];
+		}
+	},
+	drawCurve: function(ctx,p1,p2,p3)
+	{
+		ctx.beginPath();
+		ctx.moveTo(p1.x, p1.y);
+		ctx.quadraticCurveTo(p3.x, p3.y, p2.x, p2.y);
+		ctx.stroke();
+
+		var step = this.step;
+		for(var rad=step;rad < 360; rad += step)
+		{
+			ctx.save();
+			ctx.translate(this.center.x, this.center.y);
+			ctx.rotate(this.inRad(rad));
+			ctx.translate(-this.center.x, -this.center.y);
+			
+			ctx.beginPath();
+			ctx.moveTo(p1.x, p1.y);
+			ctx.quadraticCurveTo(p3.x, p3.y, p2.x, p2.y);
+			ctx.stroke();
+
+			ctx.restore();
+		}
+	},
 
 	addListeners: function()
 	{	
-		
+		var kb = new KeyboardManager(this);
+
+		kb.up('escape', function(){
+			this.clearCurrentAction();
+		}.bind(this))
+
 		this.wrapper.addEventListener('mouseleave',function(e) {
 			
 			this.updateActivePoint(e);
@@ -421,7 +538,10 @@ SymmetricDraw.prototype = {
 			this.MOUSE_HOLDED = true;
 			this.recordAction();
 
-			this.paint();
+			if (this.mode == SymmetricDraw.modeEnum.free)
+			{
+				this.paint();
+			}
 			
 		}.bind(this));
 
@@ -438,9 +558,17 @@ SymmetricDraw.prototype = {
 			
 			this.updateActivePoint(e);
 
-			if (this.MOUSE_HOLDED)
+			if (this.mode == SymmetricDraw.modeEnum.free)
 			{
-				this.paint();
+				if (this.MOUSE_HOLDED)
+				{
+					this.paint();
+				}
+			}
+
+			if (this.mode == SymmetricDraw.modeEnum.curve && this.curvePoints.length > 0)
+			{
+				this.drawCurveParts();
 			}
 
 			if (this.lineMode)
@@ -487,7 +615,15 @@ SymmetricDraw.prototype = {
 
 
 	clicked: function(e)
-	{	
+	{
+		if (this.mode == SymmetricDraw.modeEnum.curve)
+		{
+			this.curvePoint();
+		}
+
+		
+		return;
+
 		if (this.lineMode)
 		{
 			this.endStraightLine();
@@ -498,6 +634,67 @@ SymmetricDraw.prototype = {
 			this.startStraightLine();
 		}
 
+	},
+
+	curvePoint: function()
+	{
+		var points = this.curvePoints.length;
+		if (points == 0)
+		{
+			this.layers.temp.empty();
+			this.drawPoint(this.activePoint);
+			this.curvePoints.push({
+				x:this.activePoint.x,
+				y:this.activePoint.y,
+			});
+
+		} 
+		else if (points == 1)
+		{
+			this.curvePoints.push({
+				x:this.activePoint.x,
+				y:this.activePoint.y,
+			});
+				
+		} else if(points == 2)
+		{
+			this.layers.temp.empty();
+			this.curvePoints.push({
+				x:this.activePoint.x,
+				y:this.activePoint.y,
+			});
+
+			this.drawCurve(this.layout, this.curvePoints[0], this.curvePoints[1],this.curvePoints[2]);
+
+			this.curvePoints= [];
+		}
+	},
+
+	drawCurveParts: function()
+	{
+		this.layers.temp.empty();
+		if (this.curvePoints.length == 1)
+		{
+			this.drawLine(this.layers.temp, this.curvePoints[0], this.activePoint);
+
+			this.drawPoint(this.curvePoints[0]);
+			this.drawPoint(this.activePoint);
+		} 
+		else if (this.curvePoints.length == 2)
+		{
+
+			this.drawCurve(this.layers.temp, this.curvePoints[0], this.curvePoints[1], this.activePoint );
+
+			this.drawPoint(this.curvePoints[0]);
+			this.drawPoint(this.curvePoints[1]);
+			this.drawPoint(this.activePoint);	
+		}
+
+	},
+
+	drawPoint: function(p)
+	{
+		new Circle(this.layers.temp.cxt, p.x, p.y, 5, '#333', '#fff').draw();
 	},
 
 	startStraightLine: function()
