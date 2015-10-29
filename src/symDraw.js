@@ -28,6 +28,7 @@ function SymmetricDraw(width, height)
 
 	this.layerToClear = [];
 	this.curvePoints = [];
+	this.linePoints = [];
 
 	this.layers = {
 		background:    new Layer( $('background'), width, height, 1),
@@ -55,15 +56,16 @@ function SymmetricDraw(width, height)
 	}
 
 	this.options = {
-		step:30,
+		step: 16,
 		color: '#666',
-		lineWidth: 3,
+		lineWidth: 100,
 		bgColor:'#fff',
 		guideColor:'#ccc',
-		guideShow: true
+		guideShow: false,
+		lineCap: 'round'
 	};
 
-	this.mode = SymmetricDraw.modeEnum.curve;
+	this.mode = SymmetricDraw.modeEnum.line;
 
 	this.addListeners();
 
@@ -111,11 +113,61 @@ SymmetricDraw.prototype = {
 		div.appendChild(c);
 	},
 
+	buildLinecapSwitch: function()
+	{
+		var self = this;
+		var div = document.createElement('div');
+		div.className = 'option big';
+		this.controlBarLeft.appendChild(div);
+
+		var l = document.createElement('label');
+		l.className = 'full';
+		l.innerHTML = 'Line cap';
+		div.appendChild(l);
+
+		var free = document.createElement('div');
+		free.className = 'buttongroup first'
+		if(self.options.lineCap == 'round') free.className+= ' active';
+		free.innerHTML = 'R';
+		div.appendChild(free);
+		free.onclick = function(){
+			self.setOption('lineCap', 'round')
+			self.addClass(free, 'active');
+			self.removeClass(line, 'active');
+			self.removeClass(curve, 'active');
+		}
+
+		var line = document.createElement('div');
+		line.className = 'buttongroup'
+		if(self.options.lineCap == 'square') free.className+= ' active';
+		line.innerHTML = 'S';
+		div.appendChild(line);
+		line.onclick = function(){
+			self.setOption('lineCap', 'square')
+			self.addClass(line, 'active');
+			self.removeClass(free, 'active');
+			self.removeClass(curve, 'active');
+		}
+
+		var curve = document.createElement('div');
+		curve.className = 'buttongroup last'
+		if(self.options.lineCap == 'butt') free.className+= ' active';
+		curve.innerHTML = 'B';
+		div.appendChild(curve);
+		curve.onclick = function(){
+			self.setOption('lineCap', 'butt')
+			self.addClass(curve, 'active');
+			self.removeClass(line, 'active');
+			self.removeClass(free, 'active');
+
+		}
+	},
+
 	buildModeSwitch: function()
 	{
 		var self = this;
 		var div = document.createElement('div');
-		div.className = 'option';
+		div.className = 'option big';
 		this.controlBarLeft.appendChild(div);
 
 		var l = document.createElement('label');
@@ -129,7 +181,7 @@ SymmetricDraw.prototype = {
 		free.innerHTML = 'Free';
 		div.appendChild(free);
 		free.onclick = function(){
-			self.mode = SymmetricDraw.modeEnum.free;
+			self.setMode(SymmetricDraw.modeEnum.free)
 			self.addClass(free, 'active');
 			self.removeClass(line, 'active');
 			self.removeClass(curve, 'active');
@@ -143,7 +195,7 @@ SymmetricDraw.prototype = {
 		line.innerHTML = 'Line';
 		div.appendChild(line);
 		line.onclick = function(){
-			self.mode = SymmetricDraw.modeEnum.line;
+			self.setMode(SymmetricDraw.modeEnum.line)
 			self.addClass(line, 'active');
 			self.removeClass(free, 'active');
 			self.removeClass(curve, 'active');
@@ -155,7 +207,7 @@ SymmetricDraw.prototype = {
 		curve.innerHTML = 'Curve';
 		div.appendChild(curve);
 		curve.onclick = function(){
-			self.mode = SymmetricDraw.modeEnum.curve;
+			self.setMode(SymmetricDraw.modeEnum.curve)
 			self.addClass(curve, 'active');
 			self.removeClass(line, 'active');
 			self.removeClass(free, 'active');
@@ -188,10 +240,6 @@ SymmetricDraw.prototype = {
 		div.appendChild(b);
 		b.onclick = function(){
 			self.layout.empty();
-			//if(confirm('Clear canvas?'))
-			//{
-			//	self.layout.empty();
-			//}
 		}
 	},
 
@@ -213,6 +261,7 @@ SymmetricDraw.prototype = {
 		if (this.options.guideShow)
 		{
 			c.className += ' selected';
+			c.isSelected = true;
 		}
 
 		c.innerHTML = '<div class="bool-yes">Yes</div><div class="bool-no">No</div>';
@@ -232,51 +281,109 @@ SymmetricDraw.prototype = {
 		div.appendChild(c);
 	},
 
-	buildControls: function()
+	buildEnumSwitch: function(title, property, range, suffix)
 	{
-
 		var self = this;
 
-		var l = document.createElement('label');
-		l.innerHTML = 'Radial lines';
-		this.controlBarLeft.appendChild(l);
+		var div = document.createElement('div');
+		div.className = 'option';
+		this.controlBarLeft.appendChild(div);
 
-		var steps = [1,2,3,4,8,12,16,24,36, 15, 50]
-		var b;
-		for(var step = 0;step < steps.length;step++)
+		var l = document.createElement('label');
+		l.innerHTML = title;
+		div.appendChild(l);
+
+		var wrap = document.createElement('div');
+		wrap.className = 'combobox';
+		var currentValue = document.createElement('div');
+		currentValue.className = 'currentValue';
+		currentValue.innerHTML =  this.options[property] + suffix;
+
+		var hidden = true;
+		currentValue.onclick = function(){
+			if(hidden)
+			{
+				selectValue.style.display = 'block';
+				hidden = false;
+			}else{
+				selectValue.style.display = 'none';
+				hidden = true;
+			}
+		}
+
+		var selectValue = document.createElement('div');
+		selectValue.className = 'selectValue';
+		selectValue.style.display = 'none';
+
+		var values = document.createElement('div');
+		values.className = 'values';
+
+		var html = '';
+		var opt;
+		var self = this;
+		for(var i=0;i<range.length;i++)
 		{
-			b = document.createElement('input');
-			b.type= 'button';
-			b.value = steps[step];
-			(function(s) {
-				b.onclick = function(){
-					self.setOption('step', 360/steps[s])
-				}
-			}(step));
+			opt = document.createElement('div');
+			opt.className = 'comboValue';
+			opt.innerHTML = range[i];
+			opt.comboValue = range[i];
+			values.appendChild(opt);
+			opt.onclick = function(){
+				self.setOption(property, this.comboValue);
+				selectValue.style.display = 'none';
+				hidden = true;
+				currentValue.innerHTML = this.comboValue + suffix;
+				input.value = '';
+			}
+		}
+		
 
-			this.controlBarLeft.appendChild(b);
+		var custom = document.createElement('div');
+		custom.className = 'custom';
+		var lbl = document.createElement('label');
+		lbl.innerHTML = 'Custom value';
+		var input = document.createElement('input')
+		input.type ='text';
+		custom.appendChild(lbl)
+		custom.appendChild(input)
+
+		var apply = document.createElement('input')
+		apply.type ='button';
+		apply.value = 'Apply'
+		custom.appendChild(apply)
+		apply.onclick = function()
+		{	
+			var val = parseInt(input.value,10);
+			if(isNaN(val)) return;
+
+			self.setOption(property, val);
+			selectValue.style.display = 'none';
+			hidden = true;
+			currentValue.innerHTML = val + suffix;
 		}
 
-		var l = document.createElement('label');
-		l.innerHTML = 'Line Width';
-		this.controlBarLeft.appendChild(l);
 
-		b = document.createElement('select');
-		for(var i=1;i<30;i++){
-			var o = document.createElement('option');
-			o.innerHTML =i;
-			o.value = i;
-			b.appendChild(o)
-		}
-		b.onchange = function(){
-			self.setOption('lineWidth', this.value)
-		}
+		selectValue.appendChild(values);
+		selectValue.appendChild(custom);
 
-		this.controlBarLeft.appendChild(b);
-		b.value = this.options.lineWidth;
+
+		wrap.appendChild(currentValue);
+		wrap.appendChild(selectValue);
+
+		div.appendChild(wrap);
+	},
+	buildControls: function()
+	{
+		//Split to Segments
+		var steps = [1,2,3,4,5,6,8,9,12,16,24,36,15,50];
+		this.buildEnumSwitch('Segments', 'step', steps, '');
+
+		//Line width
+		var lineRange = [1,2,3,4,5, 8, 10, 12, 15, 18, 20, 30, 40, 50, 100];
+		this.buildEnumSwitch('Line width', 'lineWidth', lineRange, 'px');
 
 		this.buildModeSwitch();
-
+		this.buildLinecapSwitch();
 		this.buildColorPicker('Color', 'color');
 		this.buildColorPicker('Background', 'bgColor');
 		this.buildColorPicker('Guides Color', 'guideColor');
@@ -296,13 +403,13 @@ SymmetricDraw.prototype = {
 		this.layout.setProperties({
 			lineWidth: this.options.lineWidth,
 			strokeStyle: this.options.color,
-			lineCap: 'round'
+			lineCap: this.options.lineCap
 		});
 
 		this.layers.temp.setProperties({
 			lineWidth: this.options.lineWidth,
 			strokeStyle: this.options.color,
-			lineCap: 'round'
+			lineCap: this.options.lineCap
 		});
 
 		for(var i=0;i<5;i++){
@@ -310,12 +417,12 @@ SymmetricDraw.prototype = {
 			this.actions[i].setProperties({
 				lineWidth: this.options.lineWidth,
 				strokeStyle: this.options.color,
-				lineCap: 'round'
+				lineCap: this.options.lineCap
 			});
 		}
 
 
-		this.step = this.options.step;
+		this.step = 360/this.options.step;
 
 		if (changed == 'bgColor' || changed == 'all')
 			this.drawBackground();
@@ -484,13 +591,28 @@ SymmetricDraw.prototype = {
 			ctx.restore();
 		}
 	},
+
 	clearCurrentAction: function()
 	{
-		if (this.mode == SymmetricDraw.modeEnum.curve)
+		switch(this.mode)
 		{
-			this.layers.temp.empty();
-			this.curvePoints = [];
+			case SymmetricDraw.modeEnum.curve:
+				this.layers.temp.empty();
+				this.curvePoints = [];
+				break;
+
+			case SymmetricDraw.modeEnum.line:
+				this.layers.temp.empty();
+				this.linePoints = [];
+				break;	
 		}
+		
+	},
+
+	setMode: function(mode)
+	{
+		this.clearCurrentAction();
+		this.mode = mode;
 	},
 	drawCurve: function(ctx,p1,p2,p3)
 	{
@@ -523,6 +645,10 @@ SymmetricDraw.prototype = {
 		kb.up('escape', function(){
 			this.clearCurrentAction();
 		}.bind(this))
+
+		this.wrapper.addEventListener('dblclick',function(e) {
+			this.clearCurrentAction();
+		}.bind(this));
 
 		this.wrapper.addEventListener('mouseleave',function(e) {
 			
@@ -571,7 +697,7 @@ SymmetricDraw.prototype = {
 				this.drawCurveParts();
 			}
 
-			if (this.lineMode)
+			if (this.mode == SymmetricDraw.modeEnum.line && this.linePoints.length > 0)
 			{
 				this.drawPreviewLine();
 			}
@@ -619,6 +745,11 @@ SymmetricDraw.prototype = {
 		if (this.mode == SymmetricDraw.modeEnum.curve)
 		{
 			this.curvePoint();
+		}
+
+		if (this.mode == SymmetricDraw.modeEnum.line)
+		{
+			this.linePoint();
 		}
 
 		
@@ -692,9 +823,36 @@ SymmetricDraw.prototype = {
 
 	},
 
+	linePoint: function()
+	{
+		var points = this.linePoints.length;
+		if (points == 0)
+		{
+			this.layers.temp.empty();
+			this.drawPoint(this.activePoint);
+			this.linePoints.push({
+				x:this.activePoint.x,
+				y:this.activePoint.y,
+			});
+
+		} 
+		else if (points == 1)
+		{
+			this.layers.temp.empty();
+			this.linePoints.push({
+				x:this.activePoint.x,
+				y:this.activePoint.y,
+			});
+
+			this.drawLine(this.layout, this.linePoints[0], this.linePoints[1]);
+
+			this.linePoints = [this.linePoints[1]];
+		}
+	},
+
 	drawPoint: function(p)
 	{
-		new Circle(this.layers.temp.cxt, p.x, p.y, 5, '#333', '#fff').draw();
+		new Circle(this.layers.temp.cxt, p.x, p.y, 8, 'red', null, 1).draw();
 	},
 
 	startStraightLine: function()
@@ -735,7 +893,9 @@ SymmetricDraw.prototype = {
 	drawPreviewLine: function()
 	{
 		this.layers.temp.empty();
-		this.drawLine(this.layers.temp, this.startLinePoint, this.activePoint);
+		this.drawLine(this.layers.temp, this.linePoints[0], this.activePoint);
+		this.drawPoint(this.linePoints[0]);
+		this.drawPoint(this.activePoint);
 	},
 
 	updateActivePoint: function(e)
@@ -745,6 +905,124 @@ SymmetricDraw.prototype = {
 		var ratioY = this.wrapper.clientHeight / this.height;
 		this.activePoint.x =  Math.floor( (e.pageX - this.offsetLeft) / ratioX);
 		this.activePoint.y =  Math.floor( (e.pageY - this.offsetTop)  / ratioY);
+	},
+
+	fillWithColor: function(p)
+	{	
+		var cxt = this.layout.cxt;
+
+		var pixelData = cxt.getImageData(p.x, p.y, 1, 1);
+		var pixel = {
+			r: pixelData.data[0],
+			g: pixelData.data[1],
+			b: pixelData.data[2],
+			a: pixelData.data[3]
+		};
+
+		// Get the CanvasPixelArray from the given coordinates and dimensions.
+		var imgd = cxt.getImageData(0, 0, this.width, this.height);
+		var pix = imgd.data;	
+
+
+		processPixel(p);
+
+
+		function processPixel(currentPx)
+		{	
+
+			var y;
+			var x;
+			for(var dx=-1;dx<=1;dx++)
+			{
+				for(var dy=-1;dy<=1;dy++)
+				{
+					if (dy==0 && dx==0) continue;
+
+					var x  = currentPx.x + dx;
+					var y  = currentPx.y + dy;
+					var np = getPixelXY(imgd, x, y);
+					if(np[4] == true) continue;
+					if( np[0] == pixel.r &&
+						np[1] == pixel.g &&
+						np[2] == pixel.b &&
+						np[3] == pixel.a
+					) {
+						setPixelXY(imgd, x, y, 27, 153,204,255);
+					}
+				}
+			}
+
+			var dy = 0;
+			for(var dx=-20;dx<=20;dx++)
+			{
+				if (dx==1 || dx==-1 || dx==0) continue;
+
+				var x  = currentPx.x + dx;
+				var y  = currentPx.y + dy;
+				var np = getPixelXY(imgd, x, y);
+				if(np[4] == true) continue;
+				if( np[0] == pixel.r &&
+					np[1] == pixel.g &&
+					np[2] == pixel.b &&
+					np[3] == pixel.a
+				) {
+					setPixelXY(imgd, x, y, 27, 153,204,255);
+				}
+			}
+
+		}
+
+		
+
+
+
+		function getPixel(imgData, index) {
+
+		  var i = index*4; var d= imgData.data;
+		  return [d[i],d[i+1],d[i+2],d[i+3]] // returns array [R,G,B,A]
+		}
+
+		// AND/OR
+
+		function getPixelXY(imgData, x, y) {
+		  return getPixel(imgData, y*imgData.width+x);
+		}
+
+		function setPixelXY(imgData,x,y,r,g,b,a)
+		{
+			var d= imgData.data;
+			var index = y*imgData.width+x;
+			var i = index*4;
+			d[i] = r;
+			d[i+1] = g;
+			d[i+2] = b;
+			d[i+3] = a;
+		}
+
+		cxt.putImageData(imgd, 0,0);
+
+		return;
+
+		//27,
+		//153,
+		//204
+		//
+		
+		
+		
+
+		// Loop over each pixel and invert the color.
+		for (var i = 0, n = pix.length; i < n; i += 4) {
+		    pix[i  ] = 27;
+		    pix[i+1] = 104;
+		    pix[i+2] = 204;
+		    pix[i+3] = 255;
+		    
+		}
+
+		cxt.putImageData(imgd, 0,0);
+		
+	
 	},
 
 	onResize: function()

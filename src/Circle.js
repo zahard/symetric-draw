@@ -1,11 +1,11 @@
-function Circle(cxt,x,y,r, strokeColor, fillColor ){
+function Circle(cxt,x,y,r, strokeColor, fillColor, line ){
 	this.cxt = cxt;
 	this.x = x;
 	this.y = y;
 	this.radius = r;
 	this.strokeColor = strokeColor || null;	
 	this.fillColor = fillColor || null;
-
+	this.line = typeof line !== 'undefined' ? line : 1;
 	return this;
 }
 
@@ -18,7 +18,7 @@ Circle.prototype.draw = function() {
 
 	if( this.strokeColor ) {
 		cxt.strokeStyle = this.strokeColor;
-		cxt.lineWidth = 2;
+		cxt.lineWidth = this.line;
 		cxt.stroke();
 	}
 	if ( this.fillColor ) {			
