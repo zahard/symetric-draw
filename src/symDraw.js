@@ -56,7 +56,7 @@ function SymmetricDraw(width, height)
 	}
 
 	this.options = {
-		step: 1,
+		step: 8,
 		color: '#666',
 		lineWidth: 5,
 		bgColor:'#fff',
@@ -65,7 +65,7 @@ function SymmetricDraw(width, height)
 		lineCap: 'round'
 	};
 
-	this.mode = SymmetricDraw.modeEnum.curve;
+	this.mode = SymmetricDraw.modeEnum.line;
 
 	this.addListeners();
 
@@ -263,13 +263,13 @@ SymmetricDraw.prototype = {
 			var ctx = c.getContext('2d');
 			ctx.fillStyle = this.options['bcColor'];
 			ctx.fillRect(0,0,this.width, this.height)
-			ctx.drawImage(this.layout,0,0);
+			ctx.drawImage(this.layout.cnv,0,0);
 
 			var dataURL = c.toDataURL();
 
 			var a = document.createElement('a');
 			a.download = 'my-drawing.png';
-			a.src = dataURL;
+			a.href = dataURL;
 			document.body.appendChild(a);
 			a.click();
 			document.body.removeChild(a);
