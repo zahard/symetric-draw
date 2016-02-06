@@ -261,7 +261,7 @@ SymmetricDraw.prototype = {
 			c.width = this.width;
 			c.height = this.height;
 			var ctx = c.getContext('2d');
-			ctx.fillStyle = this.options['bcColor'];
+			ctx.fillStyle = this.options['bgColor'];
 			ctx.fillRect(0,0,this.width, this.height)
 			ctx.drawImage(this.layout.cnv,0,0);
 
