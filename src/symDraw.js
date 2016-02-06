@@ -263,7 +263,7 @@ SymmetricDraw.prototype = {
 			var ctx = c.getContext('2d');
 			ctx.fillStyle = this.options['bcColor'];
 			ctx.fillRect(0,0,this.width, this.height)
-			ctx.drawImage(this.layout);
+			ctx.drawImage(this.layout,0,0);
 
 			var dataURL = c.toDataURL();
 
