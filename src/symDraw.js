@@ -243,6 +243,40 @@ SymmetricDraw.prototype = {
 		}
 	},
 
+	buildSave: function ()
+	{
+		var self = this;
+
+		var div = document.createElement('div');
+		div.className = 'option';
+		this.controlBarLeft.appendChild(div);
+
+		var b = document.createElement('div');
+		b.style.background = 'orange';
+		b.className = 'button'
+		b.innerHTML = 'Save image';
+		div.appendChild(b);
+		b.onclick = function(){
+			var c = document.createElement('canvas');
+			c.width = this.width;
+			c.height = this.height;
+			var ctx = c.getContext('2d');
+			ctx.fillStyle = this.options['bcColor'];
+			ctx.fillRect(0,0,this.width, this.height)
+			ctx.drawImage(this.layout);
+
+			var dataURL = c.toDataURL();
+
+			var a = document.createElement('a');
+			a.download = 'my-drawing.png';
+			a.src = dataURL;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			//self.layout.empty();
+		}
+	},
+
 	buildCheckbox: function(title, optionName)
 	{
 		var self = this;
@@ -390,6 +424,8 @@ SymmetricDraw.prototype = {
 		this.buildCheckbox('Show Guides', 'guideShow');
 
 		this.buildClear();
+
+		this.buildSave();
 
 	},
 	setOption: function(prop, value)
