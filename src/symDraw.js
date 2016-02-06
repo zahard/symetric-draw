@@ -274,7 +274,7 @@ SymmetricDraw.prototype = {
 			a.click();
 			document.body.removeChild(a);
 			//self.layout.empty();
-		}
+		}.bind(this)
 	},
 
 	buildCheckbox: function(title, optionName)
