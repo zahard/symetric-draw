@@ -65,7 +65,7 @@ function SymmetricDraw(width, height)
 		lineCap: 'round'
 	};
 
-	this.mode = SymmetricDraw.modeEnum.free;
+	this.mode = SymmetricDraw.modeEnum.line;
 
 	this.addListeners();
 
